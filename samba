@@ -1,0 +1,55 @@
+samba:
+Useradd test
+touch /etc/samba/smbpasswd
+Smbpasswd -a test   \\在smbpasswd里面存放用户数据
+Pdbedit -L \\查看samba用户
+Testparm   \\检查语法是否错误
+虚拟用户： vim/etc/samba/smbusers
+Root =administrator admin
+Nobody = guest pcguest smbguest
+Test01 =user01 user02 user03
+
+ 
+[global]   全局配置
+Workgroup = WORKGROUP                                #设置主机工作组
+Server string =Samba Server Version %V                #samba服务注释
+Log level =1                                     #设置日志文件安全级别为1
+Log file = /var/log/samba/%m     #设置日志文件名称，%m以IP地址为名称
+Max log szie = 50                #设置日志文件最大容量50KB，0表示不限制
+Security =user                                       #以user验证方式访问
+Passdb backend =tdbsam                                #定义用户后台类型
+Load printers =no                                       #关闭打印共享功能
+Cups options =raw                                            #打印机选项
+Encrypt passwords =yes                                      #是否加密密码
+Smb passwd file =/etc/samba/smbpasswd                #定义保存密码文件
+username map = /etc/samba/smbusers  \\开启虚拟用户功能
+Interfaces =lo eth0 192.168.12.2/24 192.168.13.2/24
+#设置samba服务器监听网卡，可以写网卡名称或IP地址，默认注释
+Hosts allow = 192.168.12.2/24 
+#设置允许连接到samba服务器的客户端，默认注释
+Host deny =192.168.12.0/255.255.255.0 
+#设置不允许连接到samba服务器的客户端，默认注释
+[share]    共享配置
+comment  =  Home Directories                　　　#共享文件描述
+path  =  /home/smbuser01                 　　　　#共享路径
+browseable  =  yes                        　　　　#共享文件可以浏览
+Writeable =yes                                   #设置共享是否具有读写权限
+Read only = yes                                  #设置共享是否具有只读权限
+admin users = root                                       #设置共享的管理员
+Valid users = username  
+#设置允许访问共享的用户，例如valid users =user1,user2,@group1,@group2（多用户或组使用逗号隔开，@group表示group用户组）
+Invalid users = username                         #设置不允许访问共享的用户
+Write list = username    
+#设置在共享具有写入权限的用户，列如write list = user1,user2,@group1,@group2
+public =yes                                     #设置是否允许guest账户访问
+Create mask = 0700                                  #创建的文件权限为700
+Directory mode = 0700                               #创建的文件目录为 700
+
+[adminshare]
+comment  =  Home Directories                　　　　　#共享文件描述
+path  =  /home/smbadmin01                 　　　　　　#共享路径
+browseable  =  yes                         　　　　#共享文件可以浏览
+writable  =  yes                           　　　　　#共享文件可写
+create  make  =  0664                      　　　　　#设置用户创建文件权限0664
+directory  make  =  0775                   　　     #设置用户创建目录权限0775
+write  list   =   test01                   　　 #设置允许访问共享具有写入权限的用户
